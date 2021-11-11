@@ -1,1 +1,1 @@
-Thermostat to control heating from 1 or more Toons.
+Thermostat with program with variable number of days and control heating from 1 or more Toons.

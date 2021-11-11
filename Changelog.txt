@@ -1,2 +1,4 @@
+2.0.0
+- added variable number of days program
 1.0.0
 - first release

@@ -1,7 +1,6 @@
 import QtQuick 2.1
 import qb.components 1.0
 
-
 Screen {
     id                              : thermostatPlusFulControll
 
@@ -30,6 +29,7 @@ Screen {
     property string activeColor     : "lightgrey"
     property string hoverColor      : "lightgrey"
     property string selectedColor   : "green"
+    property string halfselectedColor   : "lime" // for program button when programState == 2
 
     property string tempStr
     property string programOnStr
@@ -39,9 +39,11 @@ Screen {
 
     onVisibleChanged: {
         if (visible) {
+            app.setscheduleIndex()
             app.guiMode = 'Control'
             activeMe = true
         } else {
+            app.saveSettings()
             activeMe = false
         }
     }
@@ -50,24 +52,14 @@ Screen {
 
     Timer {
         id                      : controlTimer
-        interval                : (app.mode == 'Master' ) ? 5000 : 5000
+        interval                : 5000
         running                 : activeMe
         repeat                  : true
         triggeredOnStart        : true
         onTriggered             : {
             if (dimState) (hide())
-            app.getStatus("Timer")
 
-            if (app.mode == 'Master' ) {
-                app.setStatus("RemoteProgramOnOff","off")
-                app.setStatus("Setpoint",app.currentSetpointInt/100)
-            }
-
-            if (app.mode == 'Local' ) {
-                app.setStatus("RemoteProgramOnOff","off")
-                if (app.burnerInfo) { app.setStatus("RemoteSetpoint",30) }
-                                else { app.setStatus("RemoteSetpoint",6) }
-            }
+            app.runProgram()
 
             refreshScreen()
         }
@@ -96,18 +88,21 @@ Screen {
     function refreshScreen() {
 
         if ( (app.mode == 'Mirror' ) || (app.mode == 'Master' ) ) {
-            homeTemp.text               = '.'+app.currentTemp+'.'
+            homeTemp.text               = '.'+app.currentTemp+'°.'
         } else {
-            homeTemp.text               = app.currentTemp
+            homeTemp.text               = app.currentTemp+'°'
         }
 
-        targetTemp.text             = app.currentSetpoint
+        targetTemp.text             = app.currentSetpoint + "°"
 
         tempStr                     = app.temporaryLng[app.currentLng]
 
-        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint  : ""
-        programMessageDegree.text   = ( (app.programState == 2 && app.burnerInfo) || (app.nextState > -1 ) ) ? "o" : ""
-        programMessage2.text        = (app.programState == 2 && app.burnerInfo) ? " " : (app.nextState > -1 ) ? ") " + app.nextTime : ""
+//        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint : ""
+//        programMessageDegree.text   = ( (app.programState == 2 && app.burnerInfo) || (app.nextState > -1 ) ) ? "o" : ""
+//        programMessage2.text        = (app.programState == 2 && app.burnerInfo) ? " " : (app.nextState > -1 ) ? ") " + app.nextTime : ""
+
+        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint  + "°) " + app.nextTime : ""
+
         modeMessage.text            = app.mode
 
         programComfort.buttonText   = app.statesLng[app.currentLng][0]
@@ -175,7 +170,7 @@ Screen {
             topMargin           : isNxt ? 10 : 8
         }
         onClicked: {
-            app.setStatus("Program","Comfort")
+            app.setStatus("ProgramButton","Comfort")
             app.getStatus("All")
             refreshScreen()
         }
@@ -199,7 +194,7 @@ Screen {
             topMargin           : isNxt ? 10 : 8
         }
         onClicked: {
-            app.setStatus("Program","Home")
+            app.setStatus("ProgramButton","Home")
             app.getStatus("All")
             refreshScreen()
         }
@@ -223,7 +218,7 @@ Screen {
             topMargin           : isNxt ? 10 : 8
         }
         onClicked: {
-            app.setStatus("Program","Sleep")
+            app.setStatus("ProgramButton","Sleep")
             app.getStatus("All")
             refreshScreen()
         }
@@ -247,7 +242,7 @@ Screen {
             topMargin           : isNxt ? 10 : 8
         }
         onClicked: {
-            app.setStatus("Program","Away")
+            app.setStatus("ProgramButton","Away")
             app.getStatus("All")
             refreshScreen()
         }
@@ -260,7 +255,7 @@ Screen {
         width                   : buttonWidth
         buttonActiveColor       : activeColor
         buttonHoverColor        : hoverColor
-        buttonSelectedColor     : selectedColor
+        buttonSelectedColor     : ( app.programState == 1 ) ? selectedColor : halfselectedColor
         hoveringEnabled         : isNxt
         enabled                 : true
         selected                : false
@@ -271,16 +266,16 @@ Screen {
             topMargin           : isNxt ? 20 : 16
         }
         onClicked: {
-            if (app.programState > 0) {
-                app.setStatus("ProgramOnOff","off")
+            if (app.programState == 1) {
                 app.programState = 0
             } else {
-                app.setStatus("ProgramOnOff","on")
                 app.programState = 1
+                app.programStateOverruleCounter = 0
+                app.setStatus("Program", app.activeStateText )
             }
-            app.getStatus("All")
+            app.saveSettings()
+            app.runProgram()
             refreshScreen()
-
         }
     }
 
@@ -333,7 +328,7 @@ Screen {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-
+/*
     Text {
         id                      : degree1
         text                    : "o"
@@ -348,7 +343,7 @@ Screen {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-
+*/
 // --------------------------------------------------- Next Program text
 
 // some text ;  degree symbol ; more text
@@ -369,6 +364,7 @@ Screen {
         color                   : "red"
     }
 
+/*
     Text {
         id                      : programMessageDegree
         text                    : ""
@@ -401,6 +397,7 @@ Screen {
         color                   : "red"
     }
 
+*/
 // ------------------------------------------------------------- Up Down
 
     YaLabel {
@@ -449,7 +446,7 @@ Screen {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-
+/*
     Text {
         id                      : degree2
         text                    : "o"
@@ -464,7 +461,7 @@ Screen {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-
+*/
     YaLabel {
         id                      : tempUp
         buttonText              :  ""
@@ -480,7 +477,7 @@ Screen {
         textColor               : "black"
         anchors {
             verticalCenter      : tempDown.verticalCenter
-            left                : degree2.right
+            left                : targetTemp.right
         }
         Image {
             id                  : imgUp
@@ -512,8 +509,8 @@ Screen {
         enabled                 : true
         anchors {
             top                 : programOnOff.bottom
-            horizontalCenter    : programOnOff.horizontalCenter
-            topMargin           : isNxt ? 30 : 24
+            left                : programOnOff.left
+            topMargin           : buttonHeight
         }
         onClicked: {
             app.guiMode = 'Settings'
@@ -549,7 +546,7 @@ Screen {
             left                : temp21.left
         }
         onClicked: {
-            app.setStatus("Setpoint",26)
+            app.setStatus("Setpoint",2600)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -571,7 +568,7 @@ Screen {
             left                : temp26.right
         }
         onClicked: {
-            app.setStatus("Setpoint",27)
+            app.setStatus("Setpoint",2700)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -593,7 +590,7 @@ Screen {
             left                : temp27.right
         }
         onClicked: {
-            app.setStatus("Setpoint",28)
+            app.setStatus("Setpoint",2800)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -615,7 +612,7 @@ Screen {
             left                : temp28.right
         }
         onClicked: {
-            app.setStatus("Setpoint",29)
+            app.setStatus("Setpoint",2900)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -637,7 +634,7 @@ Screen {
             left                : temp29.right
         }
         onClicked: {
-            app.setStatus("Setpoint",30)
+            app.setStatus("Setpoint",3000)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -661,7 +658,7 @@ Screen {
             left                : temp16.left
         }
         onClicked: {
-            app.setStatus("Setpoint",21)
+            app.setStatus("Setpoint",2100)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -683,7 +680,7 @@ Screen {
             left                : temp21.right
         }
         onClicked: {
-            app.setStatus("Setpoint",22)
+            app.setStatus("Setpoint",2200)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -705,7 +702,7 @@ Screen {
             left                : temp22.right
         }
         onClicked: {
-            app.setStatus("Setpoint",23)
+            app.setStatus("Setpoint",2300)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -727,7 +724,7 @@ Screen {
             left                : temp23.right
         }
         onClicked: {
-            app.setStatus("Setpoint",24)
+            app.setStatus("Setpoint",2400)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -749,7 +746,7 @@ Screen {
             left                : temp24.right
         }
         onClicked: {
-            app.setStatus("Setpoint",25)
+            app.setStatus("Setpoint",2500)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -773,7 +770,7 @@ Screen {
             left                : temp11.left
         }
         onClicked: {
-            app.setStatus("Setpoint",16)
+            app.setStatus("Setpoint",1600)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -795,7 +792,7 @@ Screen {
             left                : temp16.right
         }
         onClicked: {
-            app.setStatus("Setpoint",17)
+            app.setStatus("Setpoint",1700)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -817,7 +814,7 @@ Screen {
             left                : temp17.right
         }
         onClicked: {
-            app.setStatus("Setpoint",18)
+            app.setStatus("Setpoint",1800)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -839,7 +836,7 @@ Screen {
             left                : temp18.right
         }
         onClicked: {
-            app.setStatus("Setpoint",19)
+            app.setStatus("Setpoint",1900)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -861,7 +858,7 @@ Screen {
             left                : temp19.right
         }
         onClicked: {
-            app.setStatus("Setpoint",20)
+            app.setStatus("Setpoint",2000)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -885,7 +882,7 @@ Screen {
             left                : temp6.left
         }
         onClicked: {
-            app.setStatus("Setpoint",11)
+            app.setStatus("Setpoint",1100)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -907,7 +904,7 @@ Screen {
             left                : temp11.right
         }
         onClicked: {
-            app.setStatus("Setpoint",12)
+            app.setStatus("Setpoint",1200)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -929,7 +926,7 @@ Screen {
             left                : temp12.right
         }
         onClicked: {
-            app.setStatus("Setpoint",13)
+            app.setStatus("Setpoint",1300)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -951,7 +948,7 @@ Screen {
             left                : temp13.right
         }
         onClicked: {
-            app.setStatus("Setpoint",14)
+            app.setStatus("Setpoint",1400)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -973,7 +970,7 @@ Screen {
             left                : temp14.right
         }
         onClicked: {
-            app.setStatus("Setpoint",15)
+            app.setStatus("Setpoint",1500)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -997,7 +994,7 @@ Screen {
             right               : temp7.left
         }
         onClicked: {
-            app.setStatus("Setpoint",6)
+            app.setStatus("Setpoint",600)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -1019,7 +1016,7 @@ Screen {
             right               : temp8.left
         }
         onClicked: {
-            app.setStatus("Setpoint",7)
+            app.setStatus("Setpoint",700)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -1041,7 +1038,7 @@ Screen {
             right               : temp9.left
         }
         onClicked: {
-            app.setStatus("Setpoint",8)
+            app.setStatus("Setpoint",800)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -1063,7 +1060,7 @@ Screen {
             right               : temp10.left
         }
         onClicked: {
-            app.setStatus("Setpoint",9)
+            app.setStatus("Setpoint",900)
             app.getStatus("Control")
             refreshScreen()
         }
@@ -1087,7 +1084,7 @@ Screen {
             bottomMargin        : tempHeight
       }
         onClicked: {
-            app.setStatus("Setpoint",10)
+            app.setStatus("Setpoint",1000)
             app.getStatus("Control")
             refreshScreen()
         }
