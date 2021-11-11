@@ -13,6 +13,7 @@ Tile {
     property string activeColor     : "lightgrey"
     property string hoverColor      : "lightgrey"
     property string selectedColor   : "green"
+    property string halfselectedColor   : "lime" // for program button when programState == 2
 
     property int fireHeightBig      : isNxt ? 50 : 40
     property int fireHeightSmall    : fireHeightBig / 2
@@ -32,6 +33,7 @@ Tile {
 
     onVisibleChanged: {
         if (visible) {
+            app.setscheduleIndex()
             switch(app.guiMode) {
                 case 'Settings'         : { stage.openFullscreen(app.thermostatPlusSettingsUrl) ; break }
                 case 'BackToControl'    : { stage.openFullscreen(app.thermostatPlusControlUrl)  ; break }
@@ -52,26 +54,18 @@ Tile {
 
     Timer {
         id                      : controlTimer
-        interval                : (app.mode == 'Master' ) ? 5000 : 10000
+//        interval                : ( (app.mode == 'Master' ) || (app.mode == 'Local' ) ) ? 10000 : (app.programState == 2 ) ? 60000 : 30000
+        interval                : ( (app.mode == 'Master' ) || (app.mode == 'Local' ) ) ? 5000 : (app.programState == 2 ) ? 60000 : 10000
         running                 : activeMe
         repeat                  : true
         triggeredOnStart        : true
         onTriggered             : {
 
-            app.getStatus("Timer")
-
-            if (app.mode == 'Master' ) {
-                app.setStatus("ProgramOnOff","off" )
-                app.setStatus("Setpoint",app.currentSetpointInt/100)
-            }
-
-            if (app.mode == 'Local' ) {
-                app.setStatus("RemoteProgramOnOff","off" )
-                if (app.burnerInfo) { app.setStatus("RemoteSetpoint",30) }
-                                else { app.setStatus("RemoteSetpoint",6) }
-            }
+            app.runProgram()
 
             refreshScreen()
+
+//            app.logall()
         }
     }
 
@@ -95,23 +89,39 @@ Tile {
         }
     }
 
+// ---------------------------------------------------------------- saveVariables
+
+    Timer {
+        id                      : saveVariablesTimer
+        interval                : 10000
+        running                 : true
+        repeat                  : true
+        onTriggered             : app.saveVariables()
+    }
+
 // ---------------------------------------------------------------------
 
     function refreshScreen() {
 
         if ( (app.mode == 'Mirror' ) || (app.mode == 'Master' ) ) {
-            homeTemp.text           = '.'+app.currentTemp+'.'
+            homeTemp.text           = "." + app.currentTemp + "°."
         } else {
-            homeTemp.text           = app.currentTemp
+            homeTemp.text           = app.currentTemp + "°"
         }
 
-        targetTemp.text             = app.currentSetpoint
+        if (app.programState == 1) {
+            targetTemp.text             = app.activeStateText +  " " + app.currentSetpoint + "°"
+        } else {
+            targetTemp.text             = app.currentSetpoint + "°"
+        }
 
         tempStr                     = app.temporaryLng[app.currentLng]
 
-        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint  : ""
-        programMessageDegree.text   = ( (app.programState == 2 && app.burnerInfo) || (app.nextState > -1 ) ) ? "o" : ""
-        programMessage2.text        = (app.programState == 2 && app.burnerInfo) ? " " : (app.nextState > -1 ) ? ") " + app.nextTime : ""
+//        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint : ""
+//        programMessageDegree.text   = ( (app.programState == 2 && app.burnerInfo) || (app.nextState > -1 ) ) ? "o" : ""
+//        programMessage2.text        = (app.programState == 2 && app.burnerInfo) ? " " : (app.nextState > -1 ) ? ") " + app.nextTime : ""
+
+        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint + "°) " + app.nextTime : ""
 
     }
 
@@ -165,7 +175,7 @@ Tile {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-
+/*
     Text {
         id                      : degree1
         text                    : "o"
@@ -180,13 +190,13 @@ Tile {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-
+*/
 // ----------------------------------------------------- currentSetpoint
 
     Rectangle {
         id                      : currentSetpoint
         height                  : buttonHeight
-        width                   : buttonWidth
+        width                   : buttonWidth * 1.5
         anchors {
             bottom              : programMessage1.top
             horizontalCenter    : parent.horizontalCenter
@@ -196,18 +206,36 @@ Tile {
             color               : "black"
         }
         radius                  : 5
-        color                   : (app.programState > 0) ? selectedColor : activeColor
+        color                   : (app.programState == 1) ? selectedColor : (app.programState == 2) ? halfselectedColor : activeColor
 
         Text {
             id                  : targetTemp
             text                : ""
-            color               : (app.programState > 0) ? "white" : "black"
+            color               : (app.programState == 1) ? "white" : "black"
             anchors {
                 verticalCenter  : parent.verticalCenter
                 horizontalCenter: parent.horizontalCenter
             }
             font.family         : qfont.italic.name
         }
+/*
+        Text {
+            id                  : targetTempDegree
+            text                : "o"
+            color               : (app.programState == 1) ? "white" : "black"
+            anchors {
+                top             : parent.top
+//                topMargin       : isNxt ? -5 : -4
+                left            : targetTemp.right
+                leftMargin      : isNxt ? 3 : 2
+            }
+            font {
+                pixelSize       : isNxt ? 10 : 8
+                family          : qfont.italic.name
+                bold            : true
+            }
+        }
+*/
     }
 
 // --------------------------------------------------- Next Program text
@@ -219,7 +247,8 @@ Tile {
         text                    : ""
         anchors {
             bottom              : parent.bottom
-            left                : currentSetpoint.left
+            horizontalCenter    : currentSetpoint.horizontalCenter
+//            right               : programMessageDegree.left
         }
         font {
             pixelSize           : isNxt ? 20 : 16
@@ -228,18 +257,17 @@ Tile {
         }
         color                   : dimState ? "white" : "red"
     }
-
+/*
     Text {
         id                      : programMessageDegree
         text                    : ""
         anchors {
-            bottom              : parent.bottom
-            bottomMargin        : isNxt ? 10 : 8
-            left                : programMessage1.right
-            leftMargin          : isNxt ? 5 : 4
+            top                 : programMessage1.top
+            right               : programMessage2.left
+            leftMargin          : isNxt ? 3 : 2
         }
         font {
-            pixelSize           : isNxt ? 15 : 12
+                pixelSize       : isNxt ? 10 : 8
             family              : qfont.italic.name
             bold                : true
         }
@@ -251,7 +279,8 @@ Tile {
         text                    : ""
         anchors {
             bottom              : parent.bottom
-            left                : programMessageDegree.right
+            right               : currentSetpoint.right
+            rightMargin         : isNxt ? 25 : 20
         }
         font {
             pixelSize           : isNxt ? 20 : 16
@@ -260,7 +289,7 @@ Tile {
         }
         color                   : dimState ? "white" : "red"
     }
-
+*/
 // ---------------------------------------------------------------------
 
 }
