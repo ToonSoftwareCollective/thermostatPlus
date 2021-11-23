@@ -97,10 +97,6 @@ Screen {
 
         tempStr                     = app.temporaryLng[app.currentLng]
 
-//        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint : ""
-//        programMessageDegree.text   = ( (app.programState == 2 && app.burnerInfo) || (app.nextState > -1 ) ) ? "o" : ""
-//        programMessage2.text        = (app.programState == 2 && app.burnerInfo) ? " " : (app.nextState > -1 ) ? ") " + app.nextTime : ""
-
         programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint  + "°) " + app.nextTime : ""
 
         modeMessage.text            = app.mode
@@ -328,22 +324,7 @@ Screen {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-/*
-    Text {
-        id                      : degree1
-        text                    : "o"
-        color                   : "grey"
-        anchors {
-            top                 : homeTemp.top
-            left                : homeTemp.right
-            topMargin           : isNxt ? -5 : -4
-            leftMargin          : isNxt ? 5 : 4
-        }
-        font.pixelSize          : isNxt ? 45 : 36
-        font.family             : qfont.italic.name
-        font.bold               : true
-    }
-*/
+
 // --------------------------------------------------- Next Program text
 
 // some text ;  degree symbol ; more text
@@ -364,40 +345,6 @@ Screen {
         color                   : "red"
     }
 
-/*
-    Text {
-        id                      : programMessageDegree
-        text                    : ""
-        anchors {
-            bottom              : programMessage1.bottom
-            bottomMargin        : isNxt ? 10 : 8
-            left                : programMessage1.right
-            leftMargin          : isNxt ? 5 : 4
-        }
-        font {
-            pixelSize           : isNxt ? 15 : 12
-            family              : qfont.italic.name
-            bold                : true
-        }
-        color                   : "red"
-    }
-
-    Text {
-        id                      : programMessage2
-        text                    : ""
-        anchors {
-            bottom              : programMessage1.bottom
-            left                : programMessageDegree.right
-        }
-        font {
-            pixelSize           : isNxt ? 20 : 16
-            family              : qfont.italic.name
-            bold                : true
-        }
-        color                   : "red"
-    }
-
-*/
 // ------------------------------------------------------------- Up Down
 
     YaLabel {
@@ -446,22 +393,7 @@ Screen {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-/*
-    Text {
-        id                      : degree2
-        text                    : "o"
-        color                   : "black"
-        anchors {
-            top                 : targetTemp.top
-            left                : targetTemp.right
-            topMargin           : isNxt ? -5 : -4
-            leftMargin          : isNxt ? 5 : 4
-        }
-        font.pixelSize          : isNxt ? 20 : 16
-        font.family             : qfont.italic.name
-        font.bold               : true
-    }
-*/
+
     YaLabel {
         id                      : tempUp
         buttonText              :  ""

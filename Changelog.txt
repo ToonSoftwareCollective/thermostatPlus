@@ -1,3 +1,5 @@
+2.0.1
+- forgot code cleanup during 2.0.0 (like logging and commented sections)
 2.0.0
 - added variable number of days program
 1.0.0

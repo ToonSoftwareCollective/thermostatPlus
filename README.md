@@ -1,4 +1,4 @@
-### This Toon thermostat app with a Program with a variable number of days supports 4 different ways to control heating from 1 or more Toons. 
+### This Toon thermostat app has a Program with a variable number of days and supports 4 different ways to control heating from 1 or more Toons. 
 
 The 4 modes of this app :
  - Standard : like the large thermostat function plus other functions.
