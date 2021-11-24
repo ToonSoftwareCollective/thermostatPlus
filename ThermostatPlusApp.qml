@@ -245,25 +245,30 @@ App { id : app
 
     function saveSettings(){
 
-        var tmpUserSettingsJSON = {
-            "mode"                  :   mode,
-            "language"              :   languages[currentLng],
-            "toonIP"                :   toonIP,
-            "lastSettingsMode"      :   lastSettingsMode,
-            "programState"          :   programState,
-            "programDate"           :   programDate,
-            "programDays"           :   programDays,
-            "programTempComfort"    :   programTempComfort,
-            "programTempHome"       :   programTempHome,
-            "programTempSleep"      :   programTempSleep,
-            "programTempAway"       :   programTempAway,
-            "scheduleTime"          :   scheduleTime,
-            "scheduleProgram"       :   scheduleProgram
-        }
+        programDays         = scheduleTime.length / 6 ;
+        
+        if ( programDays > 0 ) {
 
-        var settings = new XMLHttpRequest();
-        settings.open("PUT", settingsFile);
-        settings.send(JSON.stringify(tmpUserSettingsJSON));
+            var tmpUserSettingsJSON = {
+                "mode"                  :   mode,
+                "language"              :   languages[currentLng],
+                "toonIP"                :   toonIP,
+                "lastSettingsMode"      :   lastSettingsMode,
+                "programState"          :   programState,
+                "programDate"           :   programDate,
+                "programDays"           :   programDays,
+                "programTempComfort"    :   programTempComfort,
+                "programTempHome"       :   programTempHome,
+                "programTempSleep"      :   programTempSleep,
+                "programTempAway"       :   programTempAway,
+                "scheduleTime"          :   scheduleTime,
+                "scheduleProgram"       :   scheduleProgram
+            }
+
+            var settings = new XMLHttpRequest();
+            settings.open("PUT", settingsFile);
+            settings.send(JSON.stringify(tmpUserSettingsJSON));
+        }
     }
 
 // ---------------------------------------------------------------------
@@ -306,8 +311,7 @@ App { id : app
         }
 
         if ( JSON.stringify(oldVariables) != JSON.stringify(tmpVariablesJSON) ) {
-//            log('---------------------------------------------------------------')
-//            log('oldVariables : '+JSON.stringify(oldVariables))
+
             oldVariables = {
                 "mode"                  :   mode,
                 "language"              :   languages[currentLng],
@@ -339,7 +343,6 @@ App { id : app
                 "nextSetpoint"          :   nextSetpoint.replace(',','.'),
                 "heatingOn"             :   burnerInfo
             }
-//            log('newVariables : '+JSON.stringify(oldVariables))
 
             var now      = new Date();
 
@@ -510,8 +513,6 @@ App { id : app
 
     function runProgram() {
     
-//        log('-----' +nextDateTime)
-
 // Disable Own / Remote internal Toon program if required
 
         switch(mode) {
@@ -568,8 +569,6 @@ App { id : app
             if (burnerInfo) { setStatus("RemoteSetpoint",3000) }
                             else { setStatus("RemoteSetpoint",600) }
         }
-
-//            logall()
     }
 
 // ---------------------------------------------------------------------
@@ -577,8 +576,6 @@ App { id : app
     function getStatus(calledBy)  {
 
 // calledBy : Timer / Control / All
-
-//        log('getStatus '+calledBy)
 
         if (typeof xmlhttpGetStatus != "undefined") { xmlhttpGetStatus.abort() }
 
@@ -629,8 +626,6 @@ App { id : app
                     currentTemp = currentTemp.slice(0,-1) + "," + currentTemp.slice(-1)
 
                     burnerInfo = toonStatusData['burnerInfo'] == 1
-//                    burnerInfo = currentSetpointInt > currentTempInt
-//                    log('toonStatusData["burnerInfo"] : '+toonStatusData['burnerInfo'])
 
 // Find / Calculate activeState for display
 
@@ -751,8 +746,6 @@ App { id : app
 // Setpoint ( degrees Celcius )         : nn.n
 // RemoteSetpoint  ( degrees Celcius )  : nn.n
 
-//        log('setStatus top : '+what+'   '+value)
-
         if (currentSetpoint == "......") {
             log('setStatus can not '+what+'   '+value)
         } else {
@@ -817,8 +810,6 @@ App { id : app
                 break;
             }
 
-//            log("setStatus action "+what+"  "+value+"  "+action)
-
             xmlhttpSetStatus = new XMLHttpRequest();
 
             xmlhttpSetStatus.open("GET", action, false);
@@ -841,8 +832,6 @@ App { id : app
             xmlhttpSetStatus.send();
 
         }
-
-//        log('setStatus end')
 
     }
 

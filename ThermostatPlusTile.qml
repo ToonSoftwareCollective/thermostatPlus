@@ -54,7 +54,6 @@ Tile {
 
     Timer {
         id                      : controlTimer
-//        interval                : ( (app.mode == 'Master' ) || (app.mode == 'Local' ) ) ? 10000 : (app.programState == 2 ) ? 60000 : 30000
         interval                : ( (app.mode == 'Master' ) || (app.mode == 'Local' ) ) ? 5000 : (app.programState == 2 ) ? 60000 : 10000
         running                 : activeMe
         repeat                  : true
@@ -64,8 +63,6 @@ Tile {
             app.runProgram()
 
             refreshScreen()
-
-//            app.logall()
         }
     }
 
@@ -116,10 +113,6 @@ Tile {
         }
 
         tempStr                     = app.temporaryLng[app.currentLng]
-
-//        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint : ""
-//        programMessageDegree.text   = ( (app.programState == 2 && app.burnerInfo) || (app.nextState > -1 ) ) ? "o" : ""
-//        programMessage2.text        = (app.programState == 2 && app.burnerInfo) ? " " : (app.nextState > -1 ) ? ") " + app.nextTime : ""
 
         programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint + "°) " + app.nextTime : ""
 
@@ -175,22 +168,7 @@ Tile {
         font.family             : qfont.italic.name
         font.bold               : true
     }
-/*
-    Text {
-        id                      : degree1
-        text                    : "o"
-        color                   : (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
-        anchors {
-            top                 : homeTemp.top
-            left                : homeTemp.right
-            topMargin           : isNxt ? -5 : -4
-            leftMargin          : isNxt ? 5 : 4
-        }
-        font.pixelSize          : isNxt ? 45 : 36
-        font.family             : qfont.italic.name
-        font.bold               : true
-    }
-*/
+
 // ----------------------------------------------------- currentSetpoint
 
     Rectangle {
@@ -218,24 +196,7 @@ Tile {
             }
             font.family         : qfont.italic.name
         }
-/*
-        Text {
-            id                  : targetTempDegree
-            text                : "o"
-            color               : (app.programState == 1) ? "white" : "black"
-            anchors {
-                top             : parent.top
-//                topMargin       : isNxt ? -5 : -4
-                left            : targetTemp.right
-                leftMargin      : isNxt ? 3 : 2
-            }
-            font {
-                pixelSize       : isNxt ? 10 : 8
-                family          : qfont.italic.name
-                bold            : true
-            }
-        }
-*/
+
     }
 
 // --------------------------------------------------- Next Program text
@@ -248,48 +209,15 @@ Tile {
         anchors {
             bottom              : parent.bottom
             horizontalCenter    : currentSetpoint.horizontalCenter
-//            right               : programMessageDegree.left
         }
         font {
             pixelSize           : isNxt ? 20 : 16
-            family              : qfont.italic.name
-            bold                : true
-        }
-        color                   : dimState ? "white" : "red"
-    }
-/*
-    Text {
-        id                      : programMessageDegree
-        text                    : ""
-        anchors {
-            top                 : programMessage1.top
-            right               : programMessage2.left
-            leftMargin          : isNxt ? 3 : 2
-        }
-        font {
-                pixelSize       : isNxt ? 10 : 8
             family              : qfont.italic.name
             bold                : true
         }
         color                   : dimState ? "white" : "red"
     }
 
-    Text {
-        id                      : programMessage2
-        text                    : ""
-        anchors {
-            bottom              : parent.bottom
-            right               : currentSetpoint.right
-            rightMargin         : isNxt ? 25 : 20
-        }
-        font {
-            pixelSize           : isNxt ? 20 : 16
-            family              : qfont.italic.name
-            bold                : true
-        }
-        color                   : dimState ? "white" : "red"
-    }
-*/
 // ---------------------------------------------------------------------
 
 }

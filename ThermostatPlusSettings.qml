@@ -235,7 +235,6 @@ Screen {
         app.lastSettingsMode = setupMode
         
         if ( ( dayIndexValue + sDay ) > app.programDays ) { sDay = sDay - 1 }
-//        app.log('dayIndexValue '+ daytellert )
         
 // which screen is selected
 
@@ -1246,21 +1245,7 @@ Screen {
                 font.family             : qfont.italic.name
                 font.bold               : true
             }
-/*
-            Text {
-                id                      : tempComfortDegree
-                text                    : "o"
-                color                   : "black"
-                anchors {
-                    left                : tempComfort.right
-                    top                 : tempComfort.top
-                    leftMargin          : 3
-                }
-                font.pixelSize          : isNxt ? 15 : 12
-                font.family             : qfont.italic.name
-                font.bold               : true
-            }
-*/
+
 //------
 
             YaLabel {
@@ -1300,21 +1285,7 @@ Screen {
                 font.family             : qfont.italic.name
                 font.bold               : true
             }
-/*
-            Text {
-                id                      : tempHomeDegree
-                text                    : "o"
-                color                   : "black"
-                anchors {
-                    left                : tempHome.right
-                    top                 : tempHome.top
-                    leftMargin          : 3
-                }
-                font.pixelSize          : isNxt ? 15 : 12
-                font.family             : qfont.italic.name
-                font.bold               : true
-            }
-*/
+
 //------
 
             YaLabel {
@@ -1354,21 +1325,7 @@ Screen {
                 font.family             : qfont.italic.name
                 font.bold               : true
             }
-/*
-            Text {
-                id                      : tempSleepDegree
-                text                    : "o"
-                color                   : "black"
-                anchors {
-                    left                : tempSleep.right
-                    top                 : tempSleep.top
-                    leftMargin          : 3
-                }
-                font.pixelSize          : isNxt ? 15 : 12
-                font.family             : qfont.italic.name
-                font.bold               : true
-            }
-*/
+
 //------
 
             YaLabel {
@@ -1408,21 +1365,7 @@ Screen {
                 font.family             : qfont.italic.name
                 font.bold               : true
             }
-/*
-            Text {
-                id                      : tempAwayDegree
-                text                    : "o"
-                color                   : "black"
-                anchors {
-                    left                : tempAway.right
-                    top                 : tempAway.top
-                    leftMargin          : 3
-                }
-                font.pixelSize          : isNxt ? 15 : 12
-                font.family             : qfont.italic.name
-                font.bold               : true
-            }
-*/
+
 //------
 
             YaLabel {
@@ -2659,69 +2602,6 @@ Screen {
                         
 //-------
 
-
-
-/*
-            YaLabel {
-                id                      : copyDay
-                buttonText              : ""
-                height                  : buttonHeight
-                width                   : buttonWidth
-                buttonActiveColor       : activeColor
-                buttonHoverColor        : hoverColor
-                buttonSelectedColor     : selectedColor
-                selected                : false
-                hoveringEnabled         : isNxt
-                enabled                 : true
-                textColor               : "black"
-                buttonBorderWidth       : 1
-                anchors {
-                    bottom              : parent.bottom
-                    right               : s02.right
-                    bottomMargin        : 5
-                    rightMargin         : 2
-                }
-                onClicked: {
-                    copyDayNumber = dayIndexValue  + sDay
-                    selected = true
-                    refreshScreen()
-                }
-            }
-
-
-            YaLabel {
-                id                      : pasteDay
-                buttonText              : ""
-                height                  : buttonHeight
-                width                   : buttonWidth
-                buttonActiveColor       : activeColor
-                buttonHoverColor        : selectedColor
-                buttonSelectedColor     : buttonActiveColor
-                selected                : false
-                hoveringEnabled         : isNxt
-                enabled                 : true
-                textColor               : "black"
-                buttonBorderWidth       : 1
-                anchors {
-                    bottom              : parent.bottom
-                    left                : s03.left
-                    bottomMargin        : 5
-                    leftMargin          : 2
-                }
-                onClicked: {
-                    if (copyDayNumber > 0) {
-
-                        for (var i = 0; i < 6; i++) {
-                            app.scheduleTime[(pasteDayNumber - 1) * 6 + i ]    = app.scheduleTime[(copyDayNumber - 1) * 6 + i ]
-                            app.scheduleProgram[(pasteDayNumber - 1) * 6 + i ] = app.scheduleProgram[(copyDayNumber - 1) * 6 + i ]
-                        }
-                        refreshScreen()
-                    }
-                }
-            }
-
-*/
-
             YaLabel {
                 id                      : copypasteDay
                 buttonText              : ""
@@ -2739,7 +2619,6 @@ Screen {
                     top                 : s60.bottom
                     left                : s61.left
                     topMargin           : 10
-//                    leftMargin          : 2
                 }
                 Image {
                     id                  : imgCopyPaste
@@ -2748,7 +2627,6 @@ Screen {
                         top             : parent.top
                         horizontalCenter: parent.horizontalCenter
                         topMargin       : buttonHeight / 10
-//                        verticalCenter  : parent.verticalCenter
                     }
                 }
                 onClicked: {
