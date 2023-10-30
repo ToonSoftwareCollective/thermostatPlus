@@ -97,7 +97,7 @@ Screen {
 
         tempStr                     = app.temporaryLng[app.currentLng]
 
-        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + app.currentSetpoint : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint  + "°) " + app.nextTime : ""
+        programMessage1.text        = (app.programState == 2 && app.burnerInfo) ? tempStr + " " + app.currentSetpoint + "°" : (app.nextState > -1 ) ? app.nextStateStr + " (" + app.nextSetpoint  + "°) " + app.nextTime : ""
 
         modeMessage.text            = app.mode
 

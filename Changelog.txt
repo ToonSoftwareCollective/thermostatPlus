@@ -1,3 +1,5 @@
+3.0.0
+- Added web interface on http://<toon_ip>/Thermostat+.html
 2.0.1
 - forgot code cleanup during 2.0.0 (like logging and commented sections)
 2.0.0

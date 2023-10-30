@@ -1,1 +1,1 @@
-Thermostat with program with variable number of days and control heating from 1 or more Toons.
+Thermostaatfuncties met 1 of meer Toons en kachels. Programma aantal dagen instelbaar. Web page mogelijk.
