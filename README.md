@@ -1,4 +1,4 @@
-### This Toon thermostat app has a Program with a variable number of days and supports 4 different ways to control heating from 1 or more Toons. 
+### This Toon thermostat app has a Web Page, a Program with a variable number of days and supports 4 different ways to control heating from 1 or more Toons
 
 The 4 modes of this app :
  - Standard : like the large thermostat function plus other functions.
@@ -9,15 +9,43 @@ The 4 modes of this app :
 The GUI of this app has :
  - 1 Tile for current temperature, target temperature and program state.
  - 1 Screen to control the heating and a button to enter setup.
- - 1 Setup function with 4 sub screens :
+ - 1 Setup function with 5 sub screens :
     - Info screen with explanation and language selection for the app.
         ( Nederlands / English / Deutsch )
     - App mode selection : Standard / Mirror / Master / Local.
     - Program screen with variable number of days. So not limited to 7. 
+    - Web Page anable/disable screen ( push 2 buttons to enable/disable ). 
     - Toon layout selection screen.
         ( More on that further below )
 
 The setup screens have clickable pictures to select the mode and Toon layout.
+
+Some screenshots :
+
+<table border = 1 bordercolor ="red" align = center>
+<tr>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_2.png">
+</td>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_3.png">
+</td>
+<tr>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_4.png">
+</td>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_5.png">
+</td>
+<tr>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_6.png">
+</td>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_7.png">
+</td>
+<tr>
+</table>
 
 ### The app modes : 
 <i>(you can use this app on more Toons but need it on one Toon only)</i>
@@ -81,13 +109,29 @@ So the next time you enter the Program page you may see a different date which i
 
 The Program does not run in Mirror mode. (Enforcing the Program from the Mirror would be Master mode)
 
+### The Web Page.
+
+The web page which you can access from any web browser is protected by User and Password which you give in on your Toon : Menu(left upper corner) > Settings(Instellingen) > TSC > Mobile Login.
+You activate the web page on the Web Page settings page.
+After activation you can access the web page with the link which is shown on the setup page. The link looks like 'http://192.168.4.43/Thermostat+.html'.
+Just click the Enable button followed by the Apply button.
+After you connect to the page you need to enter the User and Password which you gave in on your Toon in the Mobile Login settings
+
+User and Password are not only used to check if you are allowed to use the app but are also used to encrypt the traffic between your web browser and Toon.
+Since the traffic is encrypted it is safe to optionally use port forwarding on your router to access your Toon web page fram the internet.
+Details for this are Toon specific and are shown on the Web Page setup page of your Toon.
+
+When you enter the wrong User/Password on the web page or change Username and Password in the Mobile Login settings the setup button on the web page turns red. Click it to enter your new User/Password. Leave a field blank to use the previous value you entered before.
+
+The double arrow icon at the bottom of the page is green when everything is fine, red when there is no connection and orange when your user / password is wrong.
+
 ### Installation :
 
-You can install this app manually without ToonStore :
+You can install this app from the ToonStore or manually without ToonStore :
 
  - Open an sftp tool like WinScp/Mozilla on Windows to browse to your Toon.
  - On your Toon go to /qmf/qml/apps and create a folder thermostatPlus.
- - In that folder you put at least the qml files and the drawables folder.
+ - In that folder you put at least the html and qml files and the drawables folder.
  - Restart the GUI. ( On your Toon go to > Settings > TSC > Restart GUI )
 
 after this you press any big + on your Toon and look for the app 'Thermostat +'

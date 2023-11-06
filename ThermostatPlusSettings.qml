@@ -5,17 +5,24 @@ import BxtClient 1.0
 
 Screen {
     id: root
-    
+
     property bool selectControlMode
     property bool selectLayout
     property bool selectProgram
+    property bool selectWSSEnable
     property bool selectReadmeLanguage
+
+    property bool wSSEnabled        : false
+    property bool newwSSEnabled     : false
+    property string wssIPAddress
+    property string wssPort
 
     property int  setupMode
 
     property variant    selectControlModeLng: ["App Mode", "App Mode", "App Modus"]
     property variant    selectLayoutLng     : ["6 Tiles <=> 4 Tiles", "6 Tiles <=> 4 Tiles", "6 Tiles <=> 4 Tiles"]
     property variant    selectProgramLng    : ["Programma", "Program", "Programm"]
+    property variant    selectWSSEnableLng   : ["Web Page", "Web Page", "Web Page"]
     property variant    selectReadmeLng     : ["Info", "Info", "Info"]
 
     property variant    dayLng     : ["Dagen", "Days", "Tage"]
@@ -105,13 +112,13 @@ Screen {
         + "\n\t- Standard : Gebruik deze app voor je kachel."
         + "\n\t- Mirror     : Grote thermostaat voor eigen kachel en regel de temperatuur bij een andere Toon."
         + "\n\t- Master     : Grote thermostaat voor eigen kachel en 'ben de baas' over een andere Toon met kachel."
-        + "\n"
         + "\n'6 Tiles <=> 4 Tiles' :"
         + "\nHeb je de grote thermostaat niet nodig dan kun je deze vervangen door 2 vrije tiles."
         + "\nJe hebt dan 6 gelijke tiles en je kunt later altijd terug naar 4 tiles met grote thermostaat."
-        + "\n"
         + "\n'Programma' :"
         + "\nVariabel aantal dagen programma. Start datum past zichzelf aan na voltooide cyclus."
+        + "\n'Web Page' :"
+        + "\nToegang tot webpagina inschakelen. De verbinding is versleuteld en base64-gecodeerd."
       ,
             "'App Mode' for this Toon with / without heating :"
         + "\nwith\t- Standard : Use this app for your heating."
@@ -124,13 +131,13 @@ Screen {
         + "\n\t- Standard : Use this app for your heating."
         + "\n\t- Mirror     : Large thermostat for own heating and control the temperature at an other Toon."
         + "\n\t- Master     : Large thermostat for own heating and 'be boss' of an other Toon with heating."
-        + "\n"
         + "\n'6 Tiles <=> 4 Tiles' :"
         + "\nWhen you do not need the large thermostat you can replace it with 2 free tiles."
         + "\nThis way you have 6 equal tiles and you always can revert back to 4 tiles with large thermostat."
-        + "\n"
         + "\n'Program' :"
         + "\nVariable number of days program. Start date adjusts itself after completed cycle."
+        + "\n'Web Page' :"
+        + "\nEnable web page access. The connection is encrypted and base64 encoded."
       ,
             "'App Modus' dieses Toons mit / ohne Heizung :"
         + "\nmit\t- Standard : Verwenden Sie diese App für eigene Heizung."
@@ -143,14 +150,54 @@ Screen {
         + "\n\t- Standard :  Verwenden Sie diese App für Ihre Heizung."
         + "\n\t- Mirror     : Große Thermostat für eigene Heizung und steuern Sie die Temperatur bei einem anderen Toon."
         + "\n\t- Master     : Große Thermostat für eigene Heizung und 'bin der Boss' von einem anderen Toon."
-        + "\n"
         + "\n'6 Tiles <=> 4 Tiles' :"
         + "\nWenn Sie die große Thermostat nicht benötigen, können Sie die Große durch 2 freie Plätze für andere Apps ersetzen. "
         + "\nSie haben dann 6 gleiche Tiles und können die Änderung später rückgängig machen."
-        + "\n"
         + "\n'Programm' :"
         + "\nVariable Anzahl von Tagen Programm. Das Startdatum passt sich nach Abschluss des Zyklus an."
+        + "\n'Web Page' :"
+        + "\nAktivieren Sie den Webseitenzugriff. Die Verbindung ist verschlüsselt und base64-kodiert."
     ]
+
+    property variant setupWSSTitleLng   : ["Web Pagina + Internet Toegang" , "Web Page + Internet Access" , "Web Seite + Internet Zugriff"]
+
+    property variant textWSSPageLng   : [
+            "Web pagina aan zetten : Kies 'Enabled' + 'Apply'."
+      + "\n\nWeb pagina uit zetten : Kies 'Disabled' + 'Apply'."
+      + "\n\nNaast Wifi ook Internet toegang ?"
+        + "\n Forward 2 poorten naar Toon :"
+        + "\nTCP poort $$wssPort$$ naar $$wssPort$$"
+        + "\nen een TCP poort naar keuze bv 88 naar 80."
+        + "\n(Maak ook een DHCP reservering voor je Toon.)"
+      + "\n\nForwarding voor $$wssPort$$ bezet voor iets anders ?"
+        + "\nZet web pagina uit ('Disabled' + 'Apply')"
+        + "\nWijzig hieronder de poort."
+        + "\nZet pagina aan ('Enabled' + 'Apply')"
+      ,
+            "Turn on web page : Select 'Enabled' + 'Apply'."
+      + "\n\nTurn off web page : Select 'Disabled' + 'Apply'."
+      + "\n\nBesides Wifi also Internet access ?"
+        + "\n Forward 2 ports to Toon :"
+        + "\nTCP port $$wssPort$$ to $$wssPort$$"
+        + "\nand a TCP port of your choice like 88 to 80."
+        + "\n(Also create a DHCP reservation for your Toon.)"
+      + "\n\nForwarding for $$wssPort$$ already in use ?"
+        + "\nTurn off web page ('Disabled' + 'Apply')"
+        + "\nChange the port below."
+        + "\nTurn on web page ('Enabled' + 'Apply')"
+      ,
+            "Web Seite einschalten : Wähle 'Enabled' + 'Apply'."
+      + "\n\nWeb Seite ausschalten : Wähle 'Disabled' + 'Apply'."
+      + "\n\nNeben Wifi auch Internet Zugriff ?"
+        + "\nForward 2 TCP-Ports nach Toon :"
+        + "\nTCP-Port $$wssPort$$ nach $$wssPort$$"
+        + "\nund ein TCP-Port hrer Wahl wie 88 nach 80."
+        + "\n(Erstelle auch eine DHCP-Reservierung für Ihren Toon.)"
+      + "\n\nForwarding $$wssPort$$ bereits in Benutzung ?"
+        + "\nWeb Seite ausschalten ('Disabled' + 'Apply')"
+        + "\nÄndern Sie den Port unten."
+        + "\nWeb Seite einschalten ('Enabled' + 'Apply')"
+      ]
 
     property int screenWidth  : parent.width - 20
     property int screenHeight : isNxt ? 460 : 370
@@ -179,17 +226,17 @@ Screen {
 
     property int tempWidth          : isNxt ? 80 : 64
     property int tempHeight         : isNxt ? 80 : 64
-    
+
     property int buttonWidth        : isNxt ? 160 : 128
     property int buttonHeight       : isNxt ? 50 : 40
 
     property int dayIndexValue
     property int sDay
     property int sPeriod
-    
+
     property int copyDayNumber
     property int pasteDayNumber
-    
+
 // ------------------------------------------------------------- Startup
 
     onVisibleChanged: {
@@ -197,32 +244,38 @@ Screen {
 
             setupMode = app.lastSettingsMode
 
-            if  (! editting ) {
-// I do not return from editting IP address but I get here via the Tile from the control screen so I need to init
+            if  ( editting ) {
+                editting = false
+            } else {
+// I do not return from editting IP address / wssPort so I need to init
                 copypasteDay.selected = false
                 dayIndexValue = 1
                 sDay = 0
                 sPeriod = 0
                 copyDayNumber = 0
+
+                wSSEnabled = app.wssWrapper("getWSSEnabled")
+                newwSSEnabled = wSSEnabled
+                wssIPAddress = app.wssWrapper("getwssIPAddress")
+                wssPort = app.wssWrapper("getwssPort")
+
+                getScreenMode()
+
+                app.correctprogramDate()
+
+                refreshScreen()
+
             }
-
-            getScreenMode()
-                        
-            app.correctprogramDate()
-            
-            refreshScreen()
-
-            editting = false
 
         } else {
-            if  (! editting ) { 
+            if  (! editting ) {
 // I do not hide to go to edit the IP address but I go back to the Tile which needs to redirect me to Control
-                app.getStatus("All") 
+                app.getStatus("All")
             }
-            
-            if (app.guiMode == 'Settings' ) { 
+
+            if (app.guiMode == 'Settings' ) {
                 app.correctprogramDate()
-                app.guiMode = 'BackToControl' 
+                app.guiMode = 'BackToControl'
             }
             app.saveSettings()
         }
@@ -233,15 +286,16 @@ Screen {
     function refreshScreen() {
 
         app.lastSettingsMode = setupMode
-        
+
         if ( ( dayIndexValue + sDay ) > app.programDays ) { sDay = sDay - 1 }
-        
+
 // which screen is selected
 
         selectControlMode       = setupMode == 1
         selectLayout            = setupMode == 2
         selectProgram           = setupMode == 3
-        selectReadmeLanguage    = setupMode == 4
+        selectWSSEnable          = setupMode == 4
+        selectReadmeLanguage    = setupMode == 5
 
 // setup screen select buttons
 
@@ -253,6 +307,9 @@ Screen {
 
         showtoonProgram.buttonText      = selectProgramLng[app.currentLng]
         showtoonProgram.selected        = selectProgram
+
+        showWSSEnable.buttonText         = selectWSSEnableLng[app.currentLng]
+        showWSSEnable.selected           = selectWSSEnable
 
         showReadme.buttonText           = selectReadmeLng[app.currentLng]
         showReadme.selected             = selectReadmeLanguage
@@ -274,6 +331,15 @@ Screen {
         buttonMode4.selected = selectedMode == 4
         buttonMode6.selected = selectedMode == 6
 
+// WebSocket Server page
+
+        setupWSSTitle.text  = setupWSSTitleLng[app.currentLng]
+        textWSSEnable.text  = textWSSPageLng[app.currentLng].replace("$$wssPort$$",wssPort).replace("$$wssPort$$",wssPort).replace("$$wssPort$$",wssPort)
+
+        wSSEnabled = app.wssWrapper("getWSSEnabled")
+        newwSSEnabled = wSSEnabled
+        enableDisableWSS.buttonText2Active = wSSEnabled
+
 // readme screen with language buttons
 
         lngDutch.buttonText = app.languages[0]
@@ -286,22 +352,22 @@ Screen {
         textReadMe.text = textReadMeLng[app.currentLng]
 
 // program screen
-        
-        if ( (copyDayNumber == 0) || (copyDayNumber > app.programDays) ) { 
+
+        if ( (copyDayNumber == 0) || (copyDayNumber > app.programDays) ) {
             copypasteDay.selected = false
             copyDayNumber = 0
             pasteDayNumber = 0
         } else {
             copypasteDay.selected = true
             pasteDayNumber = dayIndexValue + sDay
-            if (pasteDayNumber > app.programDays) { 
+            if (pasteDayNumber > app.programDays) {
                 pasteDayNumber = dayIndexValue
                 sDay = 0
                 sPeriod = 0
             }
         }
 
-        if ( copypasteDay.selected ) { 
+        if ( copypasteDay.selected ) {
             textcopyDay.text  = copyDayNumber
             textpasteDay.text = dayIndexValue + sDay
             imgCopyPaste.source = app.pasteImg
@@ -310,9 +376,9 @@ Screen {
             imgCopyPaste.source = app.copyImg
         }
 
-        textyearprogramDate.text  = app.programDate.substring(0, 4) 
-        textmonthprogramDate.text = app.programDate.substring(5, 7) 
-        textdayprogramDate.text   = app.programDate.substring(8, 10) 
+        textyearprogramDate.text  = app.programDate.substring(0, 4)
+        textmonthprogramDate.text = app.programDate.substring(5, 7)
+        textdayprogramDate.text   = app.programDate.substring(8, 10)
 
         buttonprogramDays.buttonText = dayLng[app.currentLng]
 
@@ -334,12 +400,12 @@ Screen {
         s03.selected = ( sDay == 0 && sPeriod == 3 ) ; s03.buttonText = app.scheduleTime[ base +  3 ] ; s03.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
         s04.selected = ( sDay == 0 && sPeriod == 4 ) ; s04.buttonText = app.scheduleTime[ base +  4 ] ; s04.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
         s05.selected = ( sDay == 0 && sPeriod == 5 ) ; s05.buttonText = app.scheduleTime[ base +  5 ] ; s05.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-        if (s00.selected) { sedit.buttonText = s00.buttonText ; sedit.buttonActiveColor = s00.buttonActiveColor } 
-        if (s01.selected) { sedit.buttonText = s01.buttonText ; sedit.buttonActiveColor = s01.buttonActiveColor } 
-        if (s02.selected) { sedit.buttonText = s02.buttonText ; sedit.buttonActiveColor = s02.buttonActiveColor } 
-        if (s03.selected) { sedit.buttonText = s03.buttonText ; sedit.buttonActiveColor = s03.buttonActiveColor } 
-        if (s04.selected) { sedit.buttonText = s04.buttonText ; sedit.buttonActiveColor = s04.buttonActiveColor } 
-        if (s05.selected) { sedit.buttonText = s05.buttonText ; sedit.buttonActiveColor = s05.buttonActiveColor } 
+        if (s00.selected) { sedit.buttonText = s00.buttonText ; sedit.buttonActiveColor = s00.buttonActiveColor }
+        if (s01.selected) { sedit.buttonText = s01.buttonText ; sedit.buttonActiveColor = s01.buttonActiveColor }
+        if (s02.selected) { sedit.buttonText = s02.buttonText ; sedit.buttonActiveColor = s02.buttonActiveColor }
+        if (s03.selected) { sedit.buttonText = s03.buttonText ; sedit.buttonActiveColor = s03.buttonActiveColor }
+        if (s04.selected) { sedit.buttonText = s04.buttonText ; sedit.buttonActiveColor = s04.buttonActiveColor }
+        if (s05.selected) { sedit.buttonText = s05.buttonText ; sedit.buttonActiveColor = s05.buttonActiveColor }
         base = base + 6
         if ( ( base / 6 + 1 ) <=  app.programDays ) {
             s10.selected = ( sDay == 1 && sPeriod == 0 ) ; s10.buttonText = app.scheduleTime[ base +  0 ] ; s10.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  0 ]]
@@ -348,12 +414,12 @@ Screen {
             s13.selected = ( sDay == 1 && sPeriod == 3 ) ; s13.buttonText = app.scheduleTime[ base +  3 ] ; s13.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
             s14.selected = ( sDay == 1 && sPeriod == 4 ) ; s14.buttonText = app.scheduleTime[ base +  4 ] ; s14.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
             s15.selected = ( sDay == 1 && sPeriod == 5 ) ; s15.buttonText = app.scheduleTime[ base +  5 ] ; s15.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-            if (s10.selected) { sedit.buttonText = s10.buttonText ; sedit.buttonActiveColor = s10.buttonActiveColor } 
-            if (s11.selected) { sedit.buttonText = s11.buttonText ; sedit.buttonActiveColor = s11.buttonActiveColor } 
-            if (s12.selected) { sedit.buttonText = s12.buttonText ; sedit.buttonActiveColor = s12.buttonActiveColor } 
-            if (s13.selected) { sedit.buttonText = s13.buttonText ; sedit.buttonActiveColor = s13.buttonActiveColor } 
-            if (s14.selected) { sedit.buttonText = s14.buttonText ; sedit.buttonActiveColor = s14.buttonActiveColor } 
-            if (s15.selected) { sedit.buttonText = s15.buttonText ; sedit.buttonActiveColor = s15.buttonActiveColor } 
+            if (s10.selected) { sedit.buttonText = s10.buttonText ; sedit.buttonActiveColor = s10.buttonActiveColor }
+            if (s11.selected) { sedit.buttonText = s11.buttonText ; sedit.buttonActiveColor = s11.buttonActiveColor }
+            if (s12.selected) { sedit.buttonText = s12.buttonText ; sedit.buttonActiveColor = s12.buttonActiveColor }
+            if (s13.selected) { sedit.buttonText = s13.buttonText ; sedit.buttonActiveColor = s13.buttonActiveColor }
+            if (s14.selected) { sedit.buttonText = s14.buttonText ; sedit.buttonActiveColor = s14.buttonActiveColor }
+            if (s15.selected) { sedit.buttonText = s15.buttonText ; sedit.buttonActiveColor = s15.buttonActiveColor }
         }
         base = base + 6
         if ( ( base / 6 + 1 ) <=  app.programDays ) {
@@ -363,12 +429,12 @@ Screen {
             s23.selected = ( sDay == 2 && sPeriod == 3 ) ; s23.buttonText = app.scheduleTime[ base +  3 ] ; s23.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
             s24.selected = ( sDay == 2 && sPeriod == 4 ) ; s24.buttonText = app.scheduleTime[ base +  4 ] ; s24.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
             s25.selected = ( sDay == 2 && sPeriod == 5 ) ; s25.buttonText = app.scheduleTime[ base +  5 ] ; s25.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-            if (s20.selected) { sedit.buttonText = s20.buttonText ; sedit.buttonActiveColor = s20.buttonActiveColor } 
-            if (s21.selected) { sedit.buttonText = s21.buttonText ; sedit.buttonActiveColor = s21.buttonActiveColor } 
-            if (s22.selected) { sedit.buttonText = s22.buttonText ; sedit.buttonActiveColor = s22.buttonActiveColor } 
-            if (s23.selected) { sedit.buttonText = s23.buttonText ; sedit.buttonActiveColor = s23.buttonActiveColor } 
-            if (s24.selected) { sedit.buttonText = s24.buttonText ; sedit.buttonActiveColor = s24.buttonActiveColor } 
-            if (s25.selected) { sedit.buttonText = s25.buttonText ; sedit.buttonActiveColor = s25.buttonActiveColor } 
+            if (s20.selected) { sedit.buttonText = s20.buttonText ; sedit.buttonActiveColor = s20.buttonActiveColor }
+            if (s21.selected) { sedit.buttonText = s21.buttonText ; sedit.buttonActiveColor = s21.buttonActiveColor }
+            if (s22.selected) { sedit.buttonText = s22.buttonText ; sedit.buttonActiveColor = s22.buttonActiveColor }
+            if (s23.selected) { sedit.buttonText = s23.buttonText ; sedit.buttonActiveColor = s23.buttonActiveColor }
+            if (s24.selected) { sedit.buttonText = s24.buttonText ; sedit.buttonActiveColor = s24.buttonActiveColor }
+            if (s25.selected) { sedit.buttonText = s25.buttonText ; sedit.buttonActiveColor = s25.buttonActiveColor }
         }
         base = base + 6
         if ( ( base / 6 + 1 ) <=  app.programDays ) {
@@ -378,12 +444,12 @@ Screen {
             s33.selected = ( sDay == 3 && sPeriod == 3 ) ; s33.buttonText = app.scheduleTime[ base +  3 ] ; s33.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
             s34.selected = ( sDay == 3 && sPeriod == 4 ) ; s34.buttonText = app.scheduleTime[ base +  4 ] ; s34.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
             s35.selected = ( sDay == 3 && sPeriod == 5 ) ; s35.buttonText = app.scheduleTime[ base +  5 ] ; s35.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-            if (s30.selected) { sedit.buttonText = s30.buttonText ; sedit.buttonActiveColor = s30.buttonActiveColor } 
-            if (s31.selected) { sedit.buttonText = s31.buttonText ; sedit.buttonActiveColor = s31.buttonActiveColor } 
-            if (s32.selected) { sedit.buttonText = s32.buttonText ; sedit.buttonActiveColor = s32.buttonActiveColor } 
-            if (s33.selected) { sedit.buttonText = s33.buttonText ; sedit.buttonActiveColor = s33.buttonActiveColor } 
-            if (s34.selected) { sedit.buttonText = s34.buttonText ; sedit.buttonActiveColor = s34.buttonActiveColor } 
-            if (s35.selected) { sedit.buttonText = s35.buttonText ; sedit.buttonActiveColor = s35.buttonActiveColor } 
+            if (s30.selected) { sedit.buttonText = s30.buttonText ; sedit.buttonActiveColor = s30.buttonActiveColor }
+            if (s31.selected) { sedit.buttonText = s31.buttonText ; sedit.buttonActiveColor = s31.buttonActiveColor }
+            if (s32.selected) { sedit.buttonText = s32.buttonText ; sedit.buttonActiveColor = s32.buttonActiveColor }
+            if (s33.selected) { sedit.buttonText = s33.buttonText ; sedit.buttonActiveColor = s33.buttonActiveColor }
+            if (s34.selected) { sedit.buttonText = s34.buttonText ; sedit.buttonActiveColor = s34.buttonActiveColor }
+            if (s35.selected) { sedit.buttonText = s35.buttonText ; sedit.buttonActiveColor = s35.buttonActiveColor }
         }
         base = base + 6
         if ( ( base / 6 + 1 ) <=  app.programDays ) {
@@ -393,12 +459,12 @@ Screen {
             s43.selected = ( sDay == 4 && sPeriod == 3 ) ; s43.buttonText = app.scheduleTime[ base +  3 ] ; s43.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
             s44.selected = ( sDay == 4 && sPeriod == 4 ) ; s44.buttonText = app.scheduleTime[ base +  4 ] ; s44.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
             s45.selected = ( sDay == 4 && sPeriod == 5 ) ; s45.buttonText = app.scheduleTime[ base +  5 ] ; s45.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-            if (s40.selected) { sedit.buttonText = s40.buttonText ; sedit.buttonActiveColor = s40.buttonActiveColor } 
-            if (s41.selected) { sedit.buttonText = s41.buttonText ; sedit.buttonActiveColor = s41.buttonActiveColor } 
-            if (s42.selected) { sedit.buttonText = s42.buttonText ; sedit.buttonActiveColor = s42.buttonActiveColor } 
-            if (s43.selected) { sedit.buttonText = s43.buttonText ; sedit.buttonActiveColor = s43.buttonActiveColor } 
-            if (s44.selected) { sedit.buttonText = s44.buttonText ; sedit.buttonActiveColor = s44.buttonActiveColor } 
-            if (s45.selected) { sedit.buttonText = s45.buttonText ; sedit.buttonActiveColor = s45.buttonActiveColor } 
+            if (s40.selected) { sedit.buttonText = s40.buttonText ; sedit.buttonActiveColor = s40.buttonActiveColor }
+            if (s41.selected) { sedit.buttonText = s41.buttonText ; sedit.buttonActiveColor = s41.buttonActiveColor }
+            if (s42.selected) { sedit.buttonText = s42.buttonText ; sedit.buttonActiveColor = s42.buttonActiveColor }
+            if (s43.selected) { sedit.buttonText = s43.buttonText ; sedit.buttonActiveColor = s43.buttonActiveColor }
+            if (s44.selected) { sedit.buttonText = s44.buttonText ; sedit.buttonActiveColor = s44.buttonActiveColor }
+            if (s45.selected) { sedit.buttonText = s45.buttonText ; sedit.buttonActiveColor = s45.buttonActiveColor }
         }
         base = base + 6
         if ( ( base / 6 + 1 ) <=  app.programDays ) {
@@ -408,12 +474,12 @@ Screen {
             s53.selected = ( sDay == 5 && sPeriod == 3 ) ; s53.buttonText = app.scheduleTime[ base +  3 ] ; s53.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
             s54.selected = ( sDay == 5 && sPeriod == 4 ) ; s54.buttonText = app.scheduleTime[ base +  4 ] ; s54.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
             s55.selected = ( sDay == 5 && sPeriod == 5 ) ; s55.buttonText = app.scheduleTime[ base +  5 ] ; s55.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-            if (s50.selected) { sedit.buttonText = s50.buttonText ; sedit.buttonActiveColor = s50.buttonActiveColor } 
-            if (s51.selected) { sedit.buttonText = s51.buttonText ; sedit.buttonActiveColor = s51.buttonActiveColor } 
-            if (s52.selected) { sedit.buttonText = s52.buttonText ; sedit.buttonActiveColor = s52.buttonActiveColor } 
-            if (s53.selected) { sedit.buttonText = s53.buttonText ; sedit.buttonActiveColor = s53.buttonActiveColor } 
-            if (s54.selected) { sedit.buttonText = s54.buttonText ; sedit.buttonActiveColor = s54.buttonActiveColor } 
-            if (s55.selected) { sedit.buttonText = s55.buttonText ; sedit.buttonActiveColor = s55.buttonActiveColor } 
+            if (s50.selected) { sedit.buttonText = s50.buttonText ; sedit.buttonActiveColor = s50.buttonActiveColor }
+            if (s51.selected) { sedit.buttonText = s51.buttonText ; sedit.buttonActiveColor = s51.buttonActiveColor }
+            if (s52.selected) { sedit.buttonText = s52.buttonText ; sedit.buttonActiveColor = s52.buttonActiveColor }
+            if (s53.selected) { sedit.buttonText = s53.buttonText ; sedit.buttonActiveColor = s53.buttonActiveColor }
+            if (s54.selected) { sedit.buttonText = s54.buttonText ; sedit.buttonActiveColor = s54.buttonActiveColor }
+            if (s55.selected) { sedit.buttonText = s55.buttonText ; sedit.buttonActiveColor = s55.buttonActiveColor }
         }
         base = base + 6
         if ( ( base / 6 + 1 ) <=  app.programDays ) {
@@ -423,12 +489,12 @@ Screen {
             s63.selected = ( sDay == 6 && sPeriod == 3 ) ; s63.buttonText = app.scheduleTime[ base +  3 ] ; s63.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  3 ]]
             s64.selected = ( sDay == 6 && sPeriod == 4 ) ; s64.buttonText = app.scheduleTime[ base +  4 ] ; s64.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  4 ]]
             s65.selected = ( sDay == 6 && sPeriod == 5 ) ; s65.buttonText = app.scheduleTime[ base +  5 ] ; s65.buttonActiveColor = app.programColor[app.scheduleProgram[ base +  5 ]]
-            if (s60.selected) { sedit.buttonText = s60.buttonText ; sedit.buttonActiveColor = s60.buttonActiveColor } 
-            if (s61.selected) { sedit.buttonText = s61.buttonText ; sedit.buttonActiveColor = s61.buttonActiveColor } 
-            if (s62.selected) { sedit.buttonText = s62.buttonText ; sedit.buttonActiveColor = s62.buttonActiveColor } 
-            if (s63.selected) { sedit.buttonText = s63.buttonText ; sedit.buttonActiveColor = s63.buttonActiveColor } 
-            if (s64.selected) { sedit.buttonText = s64.buttonText ; sedit.buttonActiveColor = s64.buttonActiveColor } 
-            if (s65.selected) { sedit.buttonText = s65.buttonText ; sedit.buttonActiveColor = s65.buttonActiveColor } 
+            if (s60.selected) { sedit.buttonText = s60.buttonText ; sedit.buttonActiveColor = s60.buttonActiveColor }
+            if (s61.selected) { sedit.buttonText = s61.buttonText ; sedit.buttonActiveColor = s61.buttonActiveColor }
+            if (s62.selected) { sedit.buttonText = s62.buttonText ; sedit.buttonActiveColor = s62.buttonActiveColor }
+            if (s63.selected) { sedit.buttonText = s63.buttonText ; sedit.buttonActiveColor = s63.buttonActiveColor }
+            if (s64.selected) { sedit.buttonText = s64.buttonText ; sedit.buttonActiveColor = s64.buttonActiveColor }
+            if (s65.selected) { sedit.buttonText = s65.buttonText ; sedit.buttonActiveColor = s65.buttonActiveColor }
         }
     }
 
@@ -536,13 +602,24 @@ Screen {
         }
 	}
 
+// ----------------------------------------------------- Save WSS Port
+
+	function saveWSSPort(text) {
+        if (text) {
+            if ( ( parseInt(text) >= 8001 ) && ( parseInt(text) <= 8899 ) ) {
+                wssPortButton.buttonText = text.trim();
+                app.wssWrapper("setwssPort",parseInt(text))
+            }
+        }
+	}
+
 // ----------------------------------------------------- calculate new programDate
 
     function changeprogramDate(what,how) {
 
-        var year  = 1 * app.programDate.substring(0, 4) 
-        var month = 1 * app.programDate.substring(5, 7) 
-        var day   = 1 * app.programDate.substring(8, 10) 
+        var year  = 1 * app.programDate.substring(0, 4)
+        var month = 1 * app.programDate.substring(5, 7)
+        var day   = 1 * app.programDate.substring(8, 10)
 
         var daymax = 31
 
@@ -568,7 +645,7 @@ Screen {
         }
 
         app.programDate = year + '-' + app.right('0' + month , 2 ) + '-' + app.right('0' + day , 2 )
-        
+
         refreshScreen()
     }
 
@@ -610,11 +687,12 @@ Screen {
         anchors {
             bottom              : parent.bottom
             bottomMargin        : 5
-            right               : parent.horizontalCenter
-            rightMargin         : modeMargin / 2
+            right               : showtoonProgram.left
+            rightMargin         : modeMargin
         }
         onClicked: {
             setupMode = 2
+            selectedMode = bootedMode
             refreshScreen()
         }
     }
@@ -633,8 +711,7 @@ Screen {
         anchors {
             bottom              : parent.bottom
             bottomMargin        : 5
-            left                : parent.horizontalCenter
-            leftMargin          : modeMargin / 2
+            horizontalCenter    : parent.horizontalCenter
         }
         onClicked: {
             setupMode = 3
@@ -643,7 +720,7 @@ Screen {
     }
 
     YaLabel {
-        id                      : showReadme
+        id                      : showWSSEnable
         buttonText              : ""
         height                  : modeHeight
         width                   : modeWidth
@@ -660,6 +737,28 @@ Screen {
         }
         onClicked: {
             setupMode = 4
+            refreshScreen()
+        }
+    }
+
+    YaLabel {
+        id                      : showReadme
+        buttonText              : ""
+        height                  : modeHeight
+        width                   : modeWidth
+        buttonActiveColor       : activeColor
+        buttonHoverColor        : hoverColor
+        buttonSelectedColor     : selectedColor
+        hoveringEnabled         : isNxt
+        enabled                 : true
+        textColor               : "black"
+        anchors {
+            bottom              : showWSSEnable.bottom
+            left                : showWSSEnable.right
+            leftMargin          : modeMargin
+        }
+        onClicked: {
+            setupMode = 5
             refreshScreen()
         }
     }
@@ -694,7 +793,7 @@ Screen {
                 leftMargin      : isNxt ? modeMargin * 3 : modeMargin
             }
             font {
-                pixelSize       : isNxt ? 17 : 12
+                pixelSize       : isNxt ? 16 : 12
             }
             color               : "black"
         }
@@ -905,14 +1004,14 @@ Screen {
 // --------------------------------------------------- Reboot / Exit
 
         YaLabel {
-            id                  : buttonReboot
+            id                  : buttonApplyTiles
+            enabled             : (selectedMode != bootedMode)
             buttonText          :  "Apply"
             height              : modeHeight
             width               : modeWidth / 2
             buttonActiveColor   : activeColor
             buttonHoverColor    : hoverColor
             buttonSelectedColor : selectedColor
-            enabled             : true
             selected            : false
             textColor           : "black"
             anchors {
@@ -921,10 +1020,7 @@ Screen {
                 rightMargin     : modeMargin
             }
             onClicked: {
-
                 if ( selectedMode != bootedMode ) { app.saveSettings() ; switchScreenMode(selectedMode) ; rebootToon() }
-
-//                hide();
             }
         }
 
@@ -1398,7 +1494,7 @@ Screen {
                     if (yearprogramDate.selected )  { changeprogramDate("year","-") }
                     if (monthprogramDate.selected ) { changeprogramDate("month","-") }
                     if (dayprogramDate.selected )   { changeprogramDate("day","-") }
-                    if (buttonprogramDays.selected ){ 
+                    if (buttonprogramDays.selected ){
                         if (app.programDays > 1) {
                             app.programDays = app.programDays - 1
                             sDay = ( app.programDays -1 ) % 7 + 1
@@ -1406,7 +1502,7 @@ Screen {
                             for (var i = 1; i <= 6; i++) {
                                 app.scheduleTime.splice(app.scheduleTime.length - 1, 1)
                                 app.scheduleProgram.splice(app.scheduleProgram.length - 1, 1)
-                            }                        
+                            }
                             dayIndexValue = Math.floor( ( app.programDays - 1)  / 7 ) * 7 + 1
                         }
                     }
@@ -1445,17 +1541,17 @@ Screen {
                     }
                 }
                 onClicked: {
-                
+
                     if (yearprogramDate.selected )  { changeprogramDate("year","+") }
                     if (monthprogramDate.selected ) { changeprogramDate("month","+") }
                     if (dayprogramDate.selected )   { changeprogramDate("day","+") }
                     if (buttonprogramDays.selected ){
-                    
-                        app.programDays        = app.programDays + 1 
 
-                        sDay = 0 
+                        app.programDays        = app.programDays + 1
+
+                        sDay = 0
                         sDay = ( app.programDays -1 ) % 7 + 1
-                        
+
                         app.scheduleTime.push('00:00')
                         app.scheduleProgram.push(2)
 
@@ -1484,7 +1580,7 @@ Screen {
                     refreshScreen()
                 }
             }
-                        
+
         }
 
 //----------------------------------------------------------------------
@@ -1566,7 +1662,7 @@ Screen {
                 onClicked: {
                     if ( sPeriod > 0 ) {
                         var currentindex = ( dayIndexValue - 1 + sDay ) * 6  +  sPeriod
-                        var limit = app.scheduleTime[currentindex - 1] 
+                        var limit = app.scheduleTime[currentindex - 1]
                         var hours=1 * app.scheduleTime[currentindex].substring(0,2)
                         var minutes=1 * app.scheduleTime[currentindex].substring(3,5)
                         if ( minutes == 0 ) { minutes = 50 ; hours = hours - 1 } else { minutes = minutes - 10 }
@@ -1606,10 +1702,10 @@ Screen {
                 onClicked: {
                     if ( sPeriod > 0 ) {
                         var currentindex = ( dayIndexValue - 1 + sDay ) * 6  +  sPeriod
-                        if ( sPeriod == 5 ) { 
+                        if ( sPeriod == 5 ) {
                             var limit = "24:00"
                         } else {
-                            var limit = app.scheduleTime[currentindex + 1] 
+                            var limit = app.scheduleTime[currentindex + 1]
                         }
                         var hours=1 * app.scheduleTime[currentindex].substring(0,2)
                         var minutes=1 * app.scheduleTime[currentindex].substring(3,5)
@@ -1620,7 +1716,7 @@ Screen {
                     }
                 }
             }
-                        
+
 
             YaLabel {
                 id                      : changeComfort
@@ -1865,7 +1961,7 @@ Screen {
                 font.bold               : true
                 visible                 : (dayIndex2.text <= app.programDays )
             }
-        
+
             YaLabel {
                 id                      : s10
                 height                  : buttonHeight
@@ -1979,7 +2075,7 @@ Screen {
                 font.bold               : true
                 visible                 : (dayIndex3.text <= app.programDays )
             }
-        
+
             YaLabel {
                 id                      : s20
                 height                  : buttonHeight
@@ -2076,9 +2172,9 @@ Screen {
                 }
                 visible                 : (dayIndex3.text <= app.programDays )
                 onClicked: { sDay = 2 ; sPeriod = 5 ; refreshScreen() }
-                
+
             }
-            
+
 //------ row 4
 
             Text {
@@ -2094,7 +2190,7 @@ Screen {
                 font.bold               : true
                 visible                 : (dayIndex4.text <= app.programDays )
             }
-        
+
             YaLabel {
                 id                      : s30
                 height                  : buttonHeight
@@ -2192,7 +2288,7 @@ Screen {
                 visible                 : (dayIndex4.text <= app.programDays )
                 onClicked: { sDay = 3 ; sPeriod = 5 ; refreshScreen() }
             }
-            
+
 //------ row 5
 
             Text {
@@ -2208,7 +2304,7 @@ Screen {
                 font.bold               : true
                 visible                 : (dayIndex5.text <= app.programDays )
             }
-        
+
             YaLabel {
                 id                      : s40
                 height                  : buttonHeight
@@ -2306,7 +2402,7 @@ Screen {
                 visible                 : (dayIndex5.text <= app.programDays )
                 onClicked: { sDay = 4 ; sPeriod = 5 ; refreshScreen() }
             }
-            
+
 //------ row 6
 
             Text {
@@ -2322,7 +2418,7 @@ Screen {
                 font.bold               : true
                 visible                 : (dayIndex6.text <= app.programDays )
             }
-        
+
             YaLabel {
                 id                      : s50
                 height                  : buttonHeight
@@ -2435,7 +2531,7 @@ Screen {
                 font.bold               : true
                 visible                 : (dayIndex7.text <= app.programDays )
             }
-        
+
             YaLabel {
                 id                      : s60
                 height                  : buttonHeight
@@ -2596,10 +2692,10 @@ Screen {
                 }
                 onClicked: {
                     if(dayIndexValue > 1) { dayIndexValue = dayIndexValue - 7 ; sDay = 0 ; sPeriod = 0}
-                    refreshScreen()                
+                    refreshScreen()
                 }
             }
-                        
+
 //-------
 
             YaLabel {
@@ -2687,6 +2783,175 @@ Screen {
 
     }
 
+// ---------------------------------------------------- setup WSS
+
+    Rectangle {
+        id                      : setupWSS
+        visible                 : selectWSSEnable
+        width                   : screenWidth
+            height              : screenHeight
+        border {
+            width: 2
+            color: "black"
+        }
+        radius : 5
+        anchors {
+            horizontalCenter    : parent.horizontalCenter
+            top                 : parent.top
+        }
+        color                   : "white"
+
+// --------------------------------------------------- Text
+
+        Text {
+            id                  : setupWSSTitle
+            text                : ""
+            width               : parent.width / 2
+            anchors {
+                top             : parent.top
+                horizontalCenter: parent.horizontalCenter
+                topMargin       : isNxt ? 10 : 8
+            }
+            font {
+                pixelSize       : isNxt ? 25 : 20
+            }
+            color               : "black"
+            horizontalAlignment : Text.AlignHCenter
+        }
+
+// --------------------------------------------------- buttons
+
+		YaLabel {
+			id                  : enableDisableWSS
+			buttonText          : "Disabled"
+			buttonText2         : "Enabled"
+            buttonText2Active   : wSSEnabled
+			buttonText2Stack    : true
+			buttonText2Swap     : true
+            buttonActiveColor   : "#a00"
+			buttonSelectedColor : "#0a0"
+			height              : modeHeight * 1.5
+			width               : modeWidth / 1.5
+			hoveringEnabled     : isNxt
+			anchors {
+                top             : parent.top
+                topMargin       : modeMargin
+                left            : parent.left
+                leftMargin      : modeMargin
+			}
+			onClicked           : { newwSSEnabled = ! newwSSEnabled }
+		}
+
+        YaLabel {
+            id                  : wssPortButton
+            enabled             : (! wSSEnabled)
+            buttonText          : wssPort
+			height              : modeHeight * 1.5
+			width               : modeWidth / 1.5
+            buttonActiveColor   : activeColor
+            buttonHoverColor    : hoverColor
+            buttonSelectedColor : activeColor
+            hoveringEnabled     : isNxt
+            selected            : true
+            textColor           : "black"
+            anchors {
+                bottom          : parent.bottom
+                bottomMargin    : modeMargin
+                horizontalCenter: textWSSEnable.horizontalCenter
+            }
+            onClicked: {
+                editting = true
+                qkeyboard.open("A free port 8801..8899", wssPortButton.buttonText, saveWSSPort)
+            }
+        }
+
+        YaLabel {
+            id                  : buttonApplyWSS
+            enabled             : (newwSSEnabled != wSSEnabled)
+            buttonText          : "Apply"
+			height              : modeHeight * 1.5
+			width               : modeWidth / 1.5
+            buttonActiveColor   : activeColor
+            buttonHoverColor    : hoverColor
+            buttonSelectedColor : selectedColor
+            selected            : false
+            textColor           : "black"
+            anchors {
+                top             : parent.top
+                topMargin       : modeMargin
+                right           : parent.right
+                rightMargin     : modeMargin
+            }
+            onClicked: {
+                if (newwSSEnabled ) { app.wssWrapper("enableWSS") } else  { app.wssWrapper("disableWSS") }
+            }
+        }
+
+// --------------------------------------------------- Text
+
+        Text {
+            id                  : textWSSEnable
+            text                : ""
+            width               : parent.width / 2
+            anchors {
+                top             : buttonApplyWSS.bottom
+                left            : parent.left
+                topMargin       : modeMargin / 2
+                leftMargin      : 5
+            }
+            font {
+                pixelSize       : isNxt ? 16 : 12
+            }
+            horizontalAlignment: Text.AlignHCenter
+            color               : "black"
+        }
+
+        Rectangle {
+            id                  : rectWebTPlus
+            visible             : selectWSSEnable
+            width               : parent.width / 2
+            height              : ( isNxt ? 235 : 188 ) + 50
+            anchors {
+                top             : buttonApplyWSS.bottom
+                right           : parent.right
+                topMargin       : modeMargin * 2
+                rightMargin     : 5
+            }
+            border {
+                width   : 0
+                color   : "black"
+            }
+            Image {
+                id                  : imgwebTPlus
+                width               : isNxt ? 400 : 320
+                height              : isNxt ? 210 : 168
+                source              : "file:///qmf/qml/apps/thermostatPlus/drawables/webTPlus.png"
+                anchors {
+                    top             : parent.top
+                    horizontalCenter: parent.horizontalCenter
+                }
+            }
+            Text {
+                id                  : textWSSurl
+                text                : "Wifi: http://"+wssIPAddress+"/Thermostat+.html\n\n(Internet: http://internet_IP:88/Thermostat+.html)"
+
+                width               : parent.width
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    top             : imgwebTPlus.bottom
+                    topMargin       : modeMargin
+                }
+                horizontalAlignment: Text.AlignHCenter
+                font {
+                    pixelSize       : isNxt ? 20 : 16
+                }
+                color               : "black"
+            }
+
+        }
+
+    }
+
 // ---------------------------------------------------- toonReadme
 
     Rectangle {
@@ -2717,7 +2982,7 @@ Screen {
                 leftMargin      : modeMargin
             }
             font {
-                pixelSize       : isNxt ? 17 : 12
+                pixelSize       : isNxt ? 16 : 12
             }
             color               : "black"
         }
@@ -2760,7 +3025,7 @@ Screen {
             anchors {
                 bottom          : parent.bottom
                 horizontalCenter: parent.horizontalCenter
-                bottomMargin    : modeMargin
+                bottomMargin    : 5
             }
             onClicked: {
                 app.currentLng      = 1

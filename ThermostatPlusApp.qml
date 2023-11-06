@@ -130,15 +130,7 @@ App { id : app
 
         registry.registerWidget("screen", thermostatPlusSettingsUrl , this, "thermostatPlusSettings");
 
-		notifications.registerType("thermostatPlus", notifications.prio_HIGHEST, Qt.resolvedUrl("qrc:/tsc/notification-update.svg"), thermostatPlusControlUrl , {"categoryUrl": thermostatPlusControlUrl }, "thermostatPlus mededelingen");
-		notifications.registerSubtype("thermostatPlus", "mededeling", thermostatPlusControlUrl , {"categoryUrl": thermostatPlusControlUrl});
-
     }
-// ---------------------------------------------------------------------
-
-	function sendNotification(text) {
-		notifications.send("thermostatPlus", "mededeling", false, text, "category=mededeling");
-	}
 
 // ------------------------------------- Actions right after APP startup
 
@@ -167,16 +159,11 @@ App { id : app
             scheduleTime        = userSettingsJSON['scheduleTime'];
             scheduleProgram     = userSettingsJSON['scheduleProgram'];
             programDays         = scheduleTime.length / 6 ;
-            
+
         } catch(e) {
             log('Startup : '+e)
             initUserSettings()
             saveSettings()
-            switch(currentLng) {
-            case 0 : sendNotification("ThermostatPlus Programma heeft variabel aantal dagen. Zie APP-setup."); break
-            case 1 : sendNotification("ThermostatPlus Program has variabel number of days. See APP-setup."); break
-            case 2 : sendNotification("ThermostatPlus Programm hat variable Anzahl von Tagen. Siehe APP-Setup."); break
-            }
         }
         setscheduleIndex()
         correctprogramDate()
@@ -191,17 +178,13 @@ App { id : app
 
     function initUserSettings() {
 
-// Version 1 misses all data
+// first time of app start there is no data. This creates initial data.
 
-        if ( mode == "" )       { mode            = 'Standard' }
-        if ( toonIP == "" )     { toonIP          = 'IP other Toon' }
-        if ( currentLng == -1 ) { currentLng      = 1 }
+        mode            = 'Standard'
+        toonIP          = 'IP other Toon'
+        currentLng      = 1
 
-// Version 2 already has previous data but misses the next data
-
-        lastSettingsMode = 4
-
-// first time of app start there is no Program. This creates initial Program.
+        lastSettingsMode = 5
 
         var today = new Date();
         var dd = right( '0' + String(today.getDate())      , 2 )
@@ -218,7 +201,7 @@ App { id : app
 
         scheduleTime        = []
         scheduleProgram     = []
-        
+
         for (var i = 1; i <= programDays; i++) {
 
             scheduleTime.push('00:00')
@@ -246,7 +229,7 @@ App { id : app
     function saveSettings(){
 
         programDays         = scheduleTime.length / 6 ;
-        
+
         if ( programDays > 0 ) {
 
             var tmpUserSettingsJSON = {
@@ -439,7 +422,7 @@ App { id : app
         log('logall burnerInfo          : '+burnerInfo)
     }
 
-    
+
 // ---------------------------------------------------------------------
 
     function correctprogramDate() {
@@ -450,13 +433,13 @@ App { id : app
         var dt1 = new Date(programDate + " 00:00:00");
 
 // substract now - programDate and devide by 1000ms*60s*60m*24h to get number of days to add/substract
-        
+
         var Difference_In_Days = Math.floor( ( Date.now() -  dt1 ) / 86400000 )
-        
+
         var daysToAdd = Math.floor(Difference_In_Days / programDays) * programDays
-        
+
         if ( daysToAdd != 0 ) {
-        
+
             log('programDate '+programDate+' daysToAdd : '+daysToAdd)
 
             dt1.setDate(dt1.getDate() + daysToAdd )
@@ -479,7 +462,7 @@ App { id : app
 // substract now - programDate and devide by 1000ms*60s*60m*24h to get number of days to add/substract
 
         var Difference_In_Days = Math.floor( ( Date.now() -  Date.parse(programDate +" 00:00:00") ) / 86400000 )
-        
+
         var index = Difference_In_Days * 6
 
         if (index >= scheduleProgram.length) {
@@ -512,7 +495,7 @@ App { id : app
 // ---------------------------------------------------------------------
 
     function runProgram() {
-    
+
 // Disable Own / Remote internal Toon program if required
 
         switch(mode) {
@@ -691,7 +674,7 @@ App { id : app
                         nextTime = scheduleTime[ nextscheduleIndex ]
 
                         nextDateTime = new Date(programDate + " " + nextTime)
-                        
+
                         var nextscheduleIndexDay = Math.floor ( nextscheduleIndex / 6 )
 
                         if ( nextscheduleIndex > scheduleIndex ) {
@@ -711,7 +694,7 @@ App { id : app
                     currentTemp = "...."
 
 // note that the value currentSetpoint = "......" blocks the setStatus function so no settings are sent anymore
- 
+
                     currentSetpoint = "......"
 
 // do not disable the program, this used to bee the Toon program. Now it is in this app
@@ -863,6 +846,103 @@ App { id : app
       const copy = new Date(Number(date))
       copy.setDate(date.getDate() + days)
       return copy
+    }
+
+// ---------------------------------------------------- WebSocket Server
+
+    WSS {
+        id:wss
+        webPage:"/qmf/qml/apps/thermostatPlus/Thermostat+.html"
+        encryption:true
+        requestHandler: handleWSSRequest
+    }
+
+    function wssWrapper(action,param) {
+        var result = "Unsupported action : "+action
+        if (action == "enableWSS")          { result = wss.enableWSS() }
+        if (action == "disableWSS")         { result = wss.disableWSS() }
+        if (action == "getUser" )           { result = wss.user }
+        if (action == "getPassword" )       { result = wss.password }
+        if (action == "getWSSEnabled" )     { result = wss.listen }
+        if (action == "getwssIPAddress" )   { result = wss.wssIPAddress }
+        if (action == "getwssPort" )        { result = wss.wssPort }
+        if (action == "setwssPort" )        { wss.wssPort = param }
+        if (action == "getAccessedUrl" )    { result = wss.accessedUrl }
+        return result
+    }
+
+    function handleWSSRequest(clientRequest) {       // Receive clientRequest
+
+        var Status = "Error"
+        var request = clientRequest.split(":")
+
+        if ((request[0] != "thermostatPlus") || (request[1] != wss.user) || (request[2] != wss.password) ){
+            log(">"+clientRequest+"< ERROR")
+        } else {
+
+            if (request[3] == "GetStatus") {
+                getStatus("All")
+                Status = "OK"
+            }
+            
+            if (request[3] == "SetPoint") {
+                setStatus("Setpoint",request[4])
+                getStatus("Control")
+                Status = "OK"
+            }
+            
+            if (request[3] == "ProgramButton") {
+                if (request[4] == "Program") { 
+                    if (programState == 1) {
+                        programState = 0
+                    } else {
+                        programState = 1
+                        programStateOverruleCounter = 0
+                        setStatus("Program", activeState )
+                    }
+                    saveSettings()
+                    runProgram()
+                } else {
+                    setStatus("ProgramButton",request[4])
+                    getStatus("All")
+                }
+                Status = "OK"
+            }
+
+        }
+        
+        var serverResponseJSON = {}
+
+        if (Status == "Error") {
+            serverResponseJSON = {"Status":"ERROR","request":clientRequest}
+        } else {
+            serverResponseJSON = {
+                "Status":"OK",
+                "txtComfort"        : statesLng[currentLng][0],
+                "Comfort"           : (activeState == 0),
+                "txtHome"           : statesLng[currentLng][1],
+                "Home"              : (activeState == 1),
+                "txtSleep"          : statesLng[currentLng][2],
+                "Sleep"             : (activeState == 2),
+                "txtAway"           : statesLng[currentLng][3],
+                "Away"              : (activeState == 3),
+                "currentSetpoint"   : currentSetpoint+"°",
+                "currentTemp"       : currentTemp+"°",
+                "mode"              : mode,
+                "burnerInfo"        : burnerInfo,
+                "programState"      : programState,
+                "programFuture"     :(programState == 2 && burnerInfo) ? temporaryLng[currentLng] + " " + currentSetpoint + "°": (nextState > -1 ) ? nextStateStr + " (" + nextSetpoint  + "°) " + nextTime : "",
+                "activeState"       : activeState,
+                "program"           : (activeState > -1) ? statesLng[currentLng][activeState] : "",
+                "programOnStr"      : programOnOffLng[currentLng][0],
+                "programOffStr"     : programOnOffLng[currentLng][1],
+                "programOn"         : (programState > 0)
+            }
+        }
+
+        var serverResponse = JSON.stringify(serverResponseJSON)
+
+        return serverResponse                   // Return serverResponse
     }
 
 }
