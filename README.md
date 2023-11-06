@@ -28,21 +28,21 @@ Some screenshots :
 <img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_2.png">
 </td>
 <td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_3.png">
+</td>
+<tr>
+<td>
 <img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_4.png">
+</td>
+<td>
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_5.png">
 </td>
 <tr>
 <td>
 <img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_6.png">
 </td>
 <td>
-<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_8.png">
-</td>
-<tr>
-<td>
-<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_11.png">
-</td>
-<td>
-<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_12.png">
+<img width="400" height="240" src="https://github.com/JackV2020/appData/blob/main/ThermostatPlusscreenshots/thermostatPlus_screenshot_7.png">
 </td>
 <tr>
 </table>

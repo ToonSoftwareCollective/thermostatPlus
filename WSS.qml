@@ -90,13 +90,9 @@ Minimal implementation : Copy the next into the ....App.qml of your app
 // ------------------------------------------------------- Start of code
 
 import QtQuick 2.1
-import qb.components 1.0
 import QtWebSockets 1.1
 import BxtClient 1.0
 import FileIO 1.0
-import BasicUIControls 1.0
-
-// https://doc.qt.io/qt-5/qml-qtwebsockets-websocketserver.html
 
 Item {
     id:wss
